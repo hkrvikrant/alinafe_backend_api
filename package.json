@@ -1,0 +1,19 @@
+{
+  "name": "alinafe_backend",
+  "version": "1.0.0",
+  "description": "multi vender e-commerce",
+  "license": "ISC",
+  "author": "vikrant_tomar",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "mongoose": "^9.0.0",
+    "mysql2": "^3.15.3",
+    "nodemon": "^3.1.11"
+  }
+}
