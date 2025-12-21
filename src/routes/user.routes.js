@@ -5,7 +5,7 @@ const {
   handleGetUserById,
   handleUpdateUser,
   handleDeleteUser,
-} = require("../controllers/userController");
+} = require("../controllers/user.controller");
 
 const userRoutes = express.Router();
 

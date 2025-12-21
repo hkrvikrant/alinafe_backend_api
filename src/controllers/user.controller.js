@@ -1,6 +1,7 @@
-const User = require("../models/userModal");
+const User = require("../models/user.model");
 
 const handleGetAllUsers = async (req, res) => {
+  console.log("hit")
   const allUsers = await User.find({});
   return res.status(200).send({
     status: true,
