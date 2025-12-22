@@ -1,12 +1,16 @@
 const express = require("express");
+const dotenv = require("dotenv")
+
 const handleConnection = require("./connection");
 const handleRoutes = require("./src/routes/handle.routes");
+
+dotenv.config();
 
 const app = express();
 const PORT = 8000;
 
 // DB Connection
-handleConnection("mongodb://127.0.0.1:27017/alinafe_backend");
+handleConnection(process.env.MONGO_URI);
 
 app.use(express.urlencoded({ extended: false }));
 
