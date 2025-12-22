@@ -1,100 +1,152 @@
 const User = require("../models/user.model");
 
-const handleGetAllUsers = async (req, res) => {
-  console.log("hit")
-  const allUsers = await User.find({});
-  return res.status(200).send({
-    status: true,
-    data: allUsers,
-  });
-};
 
-const handleGetUserById = async (req, res) => {
-  const body = req?.params;
-
-  if (
-    !body || !body.id
-  ) {
-    return res.status(400).send({ msg: "All fields are required..." });
-  }
-
-  const { id } = req.params;
-  const userDetails = await User.findById(id);
-  return res.status(200).send({
-    msg: userDetails == null ? "User Not Found" : "User Details",
-    data: userDetails == null ? {} : userDetails,
-  });
-};
-
-const handleCreateNewUser = async (req, res) => {
-  const body = req.body;
-
-  if (
-    !body ||
-    !body.firstName ||
-    // !body.lastName ||
-    !body.email ||
-    !body.gender
-  ) {
-    return res.status(400).send({ msg: "All fields are required..." });
-  }
-
-  const existingUser = await User.findOne({ email: body.email });
-
-  if (existingUser) {
-    return res.status(400).json({
-      status: false,
-      message: "Email already registered",
+// GET LOGGED-IN USER PROFILE
+const getMyProfile = async (req, res) => {
+  try {
+    res.json({
+      success: true,
+      data: req.user
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
     });
   }
-
-  const createdUser = await User.create({
-    firstName: body.firstName,
-    lastName: body.lastName,
-    email: body.email,
-    gender: body.gender,
-  });
-
-  return res.status(201).send({ msg: "Success", data: createdUser });
 };
 
-const handleUpdateUser = async (req, res) => {
-  const body = req.body;
 
-  const existingUser = await User.findOne({ _id: body.id });
+// UPDATE PROFILE
+const updateMyProfile = async (req, res) => {
+  try {
+    const updates = req.body;
 
-  if (!existingUser) {
-    return res.status(400).json({
-      status: false,
-      message: "This user doesn't exist",
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      updates,
+      { new: true }
+    ).select("-password");
+
+    res.json({
+      success: true,
+      message: "Profile updated successfully",
+      data: user
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
     });
   }
-
-  const updatedUser = await User.findByIdAndUpdate(body?.id, {
-    firstName: body?.firstName,
-    lastName: body?.lastName,
-    gender: body?.gender,
-  });
-
-  return res.send({
-    status: updatedUser == null ? false : true,
-    msg: updatedUser == null ? "Incorrect User Id" : "Details Update Successfully",
-  });
 };
 
-const handleDeleteUser = async (req, res) => {
-  const { id } = req.body;
-  const deletedUser = await User.findByIdAndDelete(id);
-  return res.status(200).send({
-    msg: deletedUser == null ? "Invalid Id" : "User Deleted",
-    data: deletedUser,
-  });
+
+// DELETE MY ACCOUNT
+const deleteMyAccount = async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.user._id);
+    res.json({
+      success: true,
+      message: "Account deleted successfully"
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
 };
+
+
+// ADMIN: GET ALL USERS
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-password");
+    res.json({
+      success: true,
+      data: users
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+
+// ADMIN: GET USER BY ID
+const getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select("-password");
+    if (!user)
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+
+    res.json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+
+// ADMIN: UPDATE USER ROLE
+const updateUserRole = async (req, res) => {
+  try {
+    const { role, id } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      id,
+      { role },
+      { new: true }
+    ).select("-password");
+
+    res.json({
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+
+// ADMIN: DELETE USER
+const deleteUser = async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    res.json({
+      success: true,
+      message: "User deleted"
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+
 
 module.exports = {
-  handleGetAllUsers,
-  handleGetUserById,
-  handleCreateNewUser,
-  handleUpdateUser,
-  handleDeleteUser,
+  getMyProfile,
+  updateMyProfile,
+  deleteMyAccount,
+  getAllUsers,
+  getUserById,
+  updateUserRole,
+  deleteUser,
 };
