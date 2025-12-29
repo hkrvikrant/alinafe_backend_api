@@ -8,7 +8,8 @@ const adminRoutes = require("./admin.routes");
 const handleRoutes = express.Router();
 
 
-handleRoutes.use("/api", authRoutes);
+handleRoutes.use("/api/auth", authRoutes);
+
 handleRoutes.use("/api/user", userRoutes);
 
 handleRoutes.use("/api/admin", adminRoutes);

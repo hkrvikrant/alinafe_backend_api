@@ -32,11 +32,7 @@ const registerUser = async (req, res) => {
         res.status(201).json({
             success: true,
             token: generateToken(user._id),
-            user: {
-                id: user._id,
-                fullName: user.fullName,
-                email: user.email,
-            }
+            data: user
         });
     } catch (error) {
         res.status(500).json({
