@@ -99,28 +99,28 @@ const getUserById = async (req, res) => {
 };
 
 
-// ADMIN: UPDATE USER ROLE
-const updateUserRole = async (req, res) => {
-  try {
-    const { role, id } = req.body;
+// // ADMIN: UPDATE USER ROLE
+// const updateUserRole = async (req, res) => {
+//   try {
+//     const { role, id } = req.body;
 
-    const user = await User.findByIdAndUpdate(
-      id,
-      { role },
-      { new: true }
-    ).select("-password");
+//     const user = await User.findByIdAndUpdate(
+//       id,
+//       { role },
+//       { new: true }
+//     ).select("-password");
 
-    res.json({
-      success: true,
-      data: user,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
-  }
-};
+//     res.json({
+//       success: true,
+//       data: user,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message
+//     });
+//   }
+// };
 
 
 // ADMIN: DELETE USER
@@ -147,6 +147,6 @@ module.exports = {
   deleteMyAccount,
   getAllUsers,
   getUserById,
-  updateUserRole,
+  // updateUserRole,
   deleteUser,
 };

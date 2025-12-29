@@ -5,7 +5,7 @@ const {
   deleteMyAccount,
   getAllUsers,
   getUserById,
-  updateUserRole,
+  // updateUserRole,
   deleteUser,
 } = require("../controllers/user.controller");
 
@@ -24,10 +24,10 @@ userRoutes.delete("/me", protect, deleteMyAccount);
 
 
 // Admin
-userRoutes.get("/", protect, isAdmin, getAllUsers);
-userRoutes.get("/:id", protect, isAdmin, getUserById);
-userRoutes.put("/role", protect, isAdmin, updateUserRole);
-userRoutes.delete("/:id", protect, isAdmin, deleteUser);
+userRoutes.get("/", protect, getAllUsers);
+userRoutes.get("/:id", protect, getUserById);
+// userRoutes.put("/role", protect, isAdmin, updateUserRole);
+userRoutes.delete("/:id", protect, deleteUser);
 
 
 
