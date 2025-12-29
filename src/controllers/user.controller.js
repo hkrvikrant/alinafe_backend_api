@@ -99,30 +99,6 @@ const getUserById = async (req, res) => {
 };
 
 
-// // ADMIN: UPDATE USER ROLE
-// const updateUserRole = async (req, res) => {
-//   try {
-//     const { role, id } = req.body;
-
-//     const user = await User.findByIdAndUpdate(
-//       id,
-//       { role },
-//       { new: true }
-//     ).select("-password");
-
-//     res.json({
-//       success: true,
-//       data: user,
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       success: false,
-//       message: error.message
-//     });
-//   }
-// };
-
-
 // ADMIN: DELETE USER
 const deleteUser = async (req, res) => {
   try {
@@ -147,6 +123,5 @@ module.exports = {
   deleteMyAccount,
   getAllUsers,
   getUserById,
-  // updateUserRole,
   deleteUser,
 };
