@@ -18,16 +18,16 @@ const {
 const userRoutes = express.Router();
 
 
-userRoutes.get("/me", protect, getMyProfile);
-userRoutes.put("/me", protect, updateMyProfile);
-userRoutes.delete("/me", protect, deleteMyAccount);
+userRoutes.get("/", protect, getMyProfile);
+userRoutes.put("/", protect, updateMyProfile);
+userRoutes.delete("/", protect, deleteMyAccount);
 
 
 // Admin
-userRoutes.get("/", protect, getAllUsers);
-userRoutes.get("/:id", protect, getUserById);
-// userRoutes.put("/role", protect, isAdmin, updateUserRole);
-userRoutes.delete("/:id", protect, deleteUser);
+// userRoutes.get("/", protect, getAllUsers);
+// userRoutes.get("/:id", protect, getUserById);
+// // userRoutes.put("/role", protect, isAdmin, updateUserRole);
+// userRoutes.delete("/:id", protect, deleteUser);
 
 
 
