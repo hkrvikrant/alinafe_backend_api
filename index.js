@@ -12,7 +12,8 @@ const PORT = 8000;
 // DB Connection
 handleConnection(process.env.MONGO_URI);
 
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use("/v1", handleRoutes);
 
