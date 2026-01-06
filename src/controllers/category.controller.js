@@ -74,8 +74,65 @@ const updateCategory = async (req, res) => {
     }
 };
 
+// GET SINGLE CATEGORY
+const getCategoryById = async (req, res) => {
+    try {
+        const category = await Category.findById(req.body.id)
+            .populate("parentId", "name");
+
+        if (!category) {
+            return res.status(404).json({
+                success: false,
+                message: "Category not found"
+            });
+        }
+
+        res.json({
+            success: true,
+            data: category
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+// DELETE CATEGORY (SOFT DELETE)
+const deleteCategory = async (req, res) => {
+    try {
+        const category = await Category.findByIdAndUpdate(
+            req.body.id,
+            { isActive: false },
+            { new: true }
+        );
+
+        if (!category) {
+            return res.status(404).json({
+                success: false,
+                message: "Category not found"
+            });
+        }
+
+        res.json({
+            success: true,
+            message: "Category deleted successfully"
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     createCategory,
     getAllCategories,
     updateCategory,
+    getCategoryById,
+    deleteCategory,
 };
