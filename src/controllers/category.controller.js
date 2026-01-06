@@ -21,18 +21,20 @@ const createCategory = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             success: false,
-            error: error.message
+            message: error.message
         });
     }
 };
 
 // GET ALL CATEGORY
-const getAllCategorys = async (req, res) => {
+const getAllCategories = async (req, res) => {
     try {
-        const category = await Category.find().select("-password");
-        res.status(200).json({
+        const categories = await Category.find({ isActive: true })
+            .populate("parentId", "name");
+
+        res.json({
             success: true,
-            data: category
+            data: categories
         });
     } catch (error) {
         res.status(500).json({
@@ -44,5 +46,5 @@ const getAllCategorys = async (req, res) => {
 
 module.exports = {
     createCategory,
-    getAllCategorys,
+    getAllCategories,
 };

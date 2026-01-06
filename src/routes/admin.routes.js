@@ -14,7 +14,7 @@ const {
 } = require("../middlewares/auth.middleware");
 const {
     createCategory,
-    getAllCategorys,
+    getAllCategories,
 } = require("../controllers/category.controller");
 
 
@@ -30,7 +30,7 @@ adminRoutes.post("/updateUserDetailsById", staffProtect, isAdmin, updateUserDeta
 adminRoutes.delete("/deleteUser", staffProtect, isAdmin, deleteUser);
 
 adminRoutes.post("/createCategory", staffProtect, isAdmin, createCategory);
-adminRoutes.get("/getAllCategory", staffProtect, isAdmin, getAllCategorys);
+adminRoutes.get("/getAllCategories", staffProtect, isAdmin, getAllCategories);
 
 
 
