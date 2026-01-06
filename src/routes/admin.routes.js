@@ -12,7 +12,10 @@ const {
     staffProtect,
     isAdmin,
 } = require("../middlewares/auth.middleware");
-const { getAllCategorys } = require("../controllers/category.controller");
+const {
+    createCategory,
+    getAllCategorys,
+} = require("../controllers/category.controller");
 
 
 const adminRoutes = express.Router();
@@ -26,6 +29,7 @@ adminRoutes.post("/getUserById", staffProtect, isAdmin, getUserById);
 adminRoutes.post("/updateUserDetailsById", staffProtect, isAdmin, updateUserDetailsById);
 adminRoutes.delete("/deleteUser", staffProtect, isAdmin, deleteUser);
 
+adminRoutes.post("/createCategory", staffProtect, isAdmin, createCategory);
 adminRoutes.get("/getAllCategory", staffProtect, isAdmin, getAllCategorys);
 
 

@@ -33,7 +33,7 @@ const categorySchema = new mongoose.Schema({
 
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "staff"   // admin who created it
+        ref: "admin"   // admin who created it
     }
 
 }, {
