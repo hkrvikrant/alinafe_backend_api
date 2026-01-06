@@ -1,5 +1,6 @@
 const express = require("express");
 
+const upload = require("../middlewares/upload");
 const {
     getAllStaff,
     updateStaffStatus,
@@ -32,7 +33,9 @@ adminRoutes.post("/getUserById", staffProtect, isAdmin, getUserById);
 adminRoutes.post("/updateUserDetailsById", staffProtect, isAdmin, updateUserDetailsById);
 adminRoutes.delete("/deleteUser", staffProtect, isAdmin, deleteUser);
 
-adminRoutes.post("/createCategory", staffProtect, isAdmin, createCategory);
+adminRoutes.post("/createCategory", staffProtect, isAdmin,
+    upload.single("image"),
+    createCategory);
 adminRoutes.get("/getAllCategories", staffProtect, isAdmin, getAllCategories);
 adminRoutes.post("/updateCategory", staffProtect, isAdmin, updateCategory);
 adminRoutes.post("/getCategoryById", staffProtect, isAdmin, getCategoryById);

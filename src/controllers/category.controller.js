@@ -1,15 +1,27 @@
 const Category = require("../models/category.model");
 
+// CREATE CATEGORY
 const createCategory = async (req, res) => {
+
     try {
-        const { name, slug, parentId, image } = req.body;
+        const { name, slug, parentId } = req.body;
+
+        if (!name || !slug) {
+            return res.status(400).json({
+                success: false,
+                message: "Name and slug are required"
+            });
+        }
+        const image = req.file
+            ? `/uploads/categories/${req.file.filename}`
+            : null;
 
         const category = await Category.create({
             name,
             slug,
             parentId: parentId || null,
             image,
-            createdBy: req.user._id // admin id
+            createdBy: req.user?._id
         });
 
         res.status(201).json({
