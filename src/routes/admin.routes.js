@@ -15,6 +15,7 @@ const {
 const {
     createCategory,
     getAllCategories,
+    updateCategory,
 } = require("../controllers/category.controller");
 
 
@@ -31,6 +32,7 @@ adminRoutes.delete("/deleteUser", staffProtect, isAdmin, deleteUser);
 
 adminRoutes.post("/createCategory", staffProtect, isAdmin, createCategory);
 adminRoutes.get("/getAllCategories", staffProtect, isAdmin, getAllCategories);
+adminRoutes.post("/updateCategory", staffProtect, isAdmin, updateCategory);
 
 
 
