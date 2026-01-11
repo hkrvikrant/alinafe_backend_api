@@ -59,9 +59,20 @@ const getAllCategories = async (req, res) => {
 // UPDATE CATEGORY
 const updateCategory = async (req, res) => {
     try {
+        const { name, slug, parentId } = req.body;
+
+        const image = req.file
+            ? `/uploads/categories/${req.file.filename}`
+            : null;
+
         const category = await Category.findByIdAndUpdate(
-            req.body.id,
-            req.body,
+            req.body._id,
+            {
+                name,
+                slug,
+                parentId,
+                image
+            },
             { new: true }
         );
 
@@ -141,10 +152,118 @@ const deleteCategory = async (req, res) => {
     }
 };
 
+// GET All Main CATEGORY For Vendor
+const getAllMainCategories = async (req, res) => {
+    try {
+        const categories = await Category.find({
+            parentId: null,
+            isActive: true
+        })
+            .sort({ createdAt: -1 });
+
+        res.json({
+            success: true,
+            data: categories,
+            count: categories.length,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+// GET All CATEGORY of a Category For Vendor
+const getCategoriesByParentID = async (req, res) => {
+    try {
+        const { id } = req.body;
+        const categories = await Category.find({
+            parentId: {
+                _id: id,
+            },
+            isActive: true
+        })
+            .sort({ createdAt: -1 });
+
+        res.json({
+            success: true,
+            data: categories,
+            count: categories.length,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+// Get All Category list in format
+const formatedCategories = async (req, res) => {
+    try {
+        const categories = await Category.aggregate([
+            {
+                $match: {
+                    parentId: null,
+                    isActive: true
+                }
+            },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "_id",
+                    foreignField: "parentId",
+                    as: "data"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$data",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "data._id",
+                    foreignField: "parentId",
+                    as: "data.data"
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    name: { $first: "$name" },
+                    slug: { $first: "$slug" },
+                    parentId: { $first: "$parentId" },
+                    image: { $first: "$image" },
+                    isActive: { $first: "$isActive" },
+                    data: { $push: "$data" }
+                }
+            }
+        ]);
+
+        res.json({
+            success: true,
+            data: categories,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
 module.exports = {
     createCategory,
     getAllCategories,
     updateCategory,
     getCategoryById,
     deleteCategory,
+
+    getAllMainCategories,
+    getCategoriesByParentID,
+    formatedCategories,
 };
