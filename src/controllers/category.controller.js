@@ -13,7 +13,7 @@ const createCategory = async (req, res) => {
             });
         }
         const image = req.file
-            ? `/uploads/categories/${req.file.filename}`
+            ? `/uploads/images/${req.file.filename}`
             : null;
 
         const category = await Category.create({
@@ -62,7 +62,7 @@ const updateCategory = async (req, res) => {
         const { name, slug, parentId } = req.body;
 
         const image = req.file
-            ? `/uploads/categories/${req.file.filename}`
+            ? `/uploads/images/${req.file.filename}`
             : null;
 
         const category = await Category.findByIdAndUpdate(
