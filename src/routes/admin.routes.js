@@ -19,7 +19,11 @@ const {
     updateCategory,
     getCategoryById,
     deleteCategory,
+    getAllMainCategories,
+    getCategoriesByParentID,
+    formatedCategories,
 } = require("../controllers/category.controller");
+const { updateProductStatus } = require("../controllers/products.controller");
 
 
 const adminRoutes = express.Router();
@@ -36,10 +40,18 @@ adminRoutes.delete("/deleteUser", staffProtect, isAdmin, deleteUser);
 adminRoutes.post("/createCategory", staffProtect, isAdmin,
     upload.single("image"),
     createCategory);
+adminRoutes.post("/updateCategory", staffProtect, isAdmin,
+    upload.single("image"),
+    updateCategory);
 adminRoutes.get("/getAllCategories", staffProtect, isAdmin, getAllCategories);
-adminRoutes.post("/updateCategory", staffProtect, isAdmin, updateCategory);
 adminRoutes.post("/getCategoryById", staffProtect, isAdmin, getCategoryById);
-adminRoutes.delete("/deleteCategory", staffProtect, isAdmin, deleteCategory);
+adminRoutes.post("/deleteCategory", staffProtect, isAdmin, deleteCategory);
+
+adminRoutes.get("/getAllMainCategories", staffProtect, isAdmin, getAllMainCategories);
+adminRoutes.post("/getCategoriesByParentID", staffProtect, isAdmin, getCategoriesByParentID);
+adminRoutes.get("/formatedCategories", staffProtect, isAdmin, formatedCategories);
+
+adminRoutes.post("/updateProductStatus", staffProtect, isAdmin, updateProductStatus);
 
 
 
