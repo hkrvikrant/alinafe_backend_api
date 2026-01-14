@@ -2,9 +2,13 @@ const Category = require("../models/category.model");
 
 // CREATE CATEGORY
 const createCategory = async (req, res) => {
-
     try {
-        const { name, slug, parentId } = req.body;
+        const {
+            name,
+            slug,
+            parentId,
+            commissionPercentage,
+        } = req.body;
 
         if (!name || !slug) {
             return res.status(400).json({
@@ -12,6 +16,14 @@ const createCategory = async (req, res) => {
                 message: "Name and slug are required"
             });
         }
+
+        if (commissionPercentage < 0 || commissionPercentage > 100) {
+            return res.status(400).json({
+                success: false,
+                message: "Commission must be between 0 and 100"
+            });
+        }
+
         const image = req.file
             ? `/uploads/images/${req.file.filename}`
             : null;
@@ -21,6 +33,7 @@ const createCategory = async (req, res) => {
             slug,
             parentId: parentId || null,
             image,
+            commissionPercentage,
             createdBy: req.user?._id
         });
 
@@ -42,7 +55,7 @@ const createCategory = async (req, res) => {
 const getAllCategories = async (req, res) => {
     try {
         const categories = await Category.find({ isActive: true })
-            .populate("parentId", "name");
+            .populate("parentId", "name commissionPercentage");
 
         res.json({
             success: true,
@@ -59,7 +72,21 @@ const getAllCategories = async (req, res) => {
 // UPDATE CATEGORY
 const updateCategory = async (req, res) => {
     try {
-        const { name, slug, parentId } = req.body;
+        const {
+            name,
+            slug,
+            parentId,
+            commissionPercentage
+        } = req.body;
+
+        if (commissionPercentage !== undefined) {
+            if (commissionPercentage < 0 || commissionPercentage > 100) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Commission must be between 0 and 100"
+                });
+            }
+        }
 
         const image = req.file
             ? `/uploads/images/${req.file.filename}`
@@ -71,7 +98,8 @@ const updateCategory = async (req, res) => {
                 name,
                 slug,
                 parentId,
-                image
+                commissionPercentage,
+                image,
             },
             { new: true }
         );
@@ -101,7 +129,7 @@ const updateCategory = async (req, res) => {
 const getCategoryById = async (req, res) => {
     try {
         const category = await Category.findById(req.body.id)
-            .populate("parentId", "name");
+            .populate("parentId", "name commissionPercentage");
 
         if (!category) {
             return res.status(404).json({
@@ -179,9 +207,7 @@ const getCategoriesByParentID = async (req, res) => {
     try {
         const { id } = req.body;
         const categories = await Category.find({
-            parentId: {
-                _id: id,
-            },
+            parentId: id,
             isActive: true
         })
             .sort({ createdAt: -1 });
