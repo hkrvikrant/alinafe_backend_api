@@ -26,6 +26,14 @@ const categorySchema = new mongoose.Schema({
         type: String
     },
 
+    commissionPercentage: {
+        type: Number,
+        required: true,
+        min: 0,
+        max: 100,
+        default: 0
+    },
+
     isActive: {
         type: Boolean,
         default: true
@@ -33,7 +41,7 @@ const categorySchema = new mongoose.Schema({
 
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "admin"   // admin who created it
+        ref: "admin"
     }
 
 }, {
