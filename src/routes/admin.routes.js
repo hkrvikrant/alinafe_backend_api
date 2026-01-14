@@ -23,7 +23,7 @@ const {
     getCategoriesByParentID,
     formatedCategories,
 } = require("../controllers/category.controller");
-const { updateProductStatus } = require("../controllers/products.controller");
+const { updateProductStatus, getAllProductsForAdmin } = require("../controllers/products.controller");
 
 
 const adminRoutes = express.Router();
@@ -51,6 +51,7 @@ adminRoutes.get("/getAllMainCategories", staffProtect, isAdmin, getAllMainCatego
 adminRoutes.post("/getCategoriesByParentID", staffProtect, isAdmin, getCategoriesByParentID);
 adminRoutes.get("/formatedCategories", staffProtect, isAdmin, formatedCategories);
 
+adminRoutes.get("/getAllProductsForAdmin", staffProtect, isAdmin, getAllProductsForAdmin);
 adminRoutes.post("/updateProductStatus", staffProtect, isAdmin, updateProductStatus);
 
 

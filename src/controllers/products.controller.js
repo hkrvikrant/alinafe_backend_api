@@ -295,13 +295,72 @@ const updateProductStatus = async (req, res) => {
 const getVendorProducts = async (req, res) => {
     try {
         const products = await Product.find({
-            vendorId: req.user._id
+            vendorId: req.user._id,
+            isActive: true
         })
             .populate("categories", "name");
 
         res.status(200).json({
             success: true,
             data: products
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+//  GET ALL PRODUCTS (ADMIN)
+const getAllProductsForAdmin = async (req, res) => {
+    try {
+        const {
+            page,
+            limit,
+            status,
+            search
+        } = req.query;
+
+        const query = {
+            isActive: true
+        };
+
+        // 🔹 Filter by status
+        if (status) {
+            query.status = status;
+        }
+
+        // 🔹 Search by name or SKU
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: "i" } },
+                { sku: { $regex: search, $options: "i" } }
+            ];
+        }
+
+        const skip = (page - 1) * limit;
+
+        const products = await Product.find(query)
+            .populate("vendorId", "name email")
+            .populate("categories", "name")
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(Number(limit));
+
+        const total = await Product.countDocuments(query);
+
+        res.status(200).json({
+            success: true,
+            data: products,
+            pagination: {
+                success: true,
+                total,
+                page: Number(page),
+                limit: Number(limit),
+                totalPages: Math.ceil(total / limit)
+            }
         });
 
     } catch (error) {
@@ -320,4 +379,6 @@ module.exports = {
     deleteProduct,
     updateProductStatus,
     getVendorProducts,
+
+    getAllProductsForAdmin,
 };
