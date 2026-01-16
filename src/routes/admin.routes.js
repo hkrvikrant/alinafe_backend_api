@@ -24,6 +24,7 @@ const {
     formatedCategories,
 } = require("../controllers/category.controller");
 const { updateProductStatus, getAllProductsForAdmin } = require("../controllers/products.controller");
+const { createPage, updatePage, deletePage, getAllActivePages, getPageBySlug } = require("../controllers/page.controller");
 
 
 const adminRoutes = express.Router();
@@ -53,6 +54,16 @@ adminRoutes.get("/formatedCategories", staffProtect, isAdmin, formatedCategories
 
 adminRoutes.get("/getAllProductsForAdmin", staffProtect, isAdmin, getAllProductsForAdmin);
 adminRoutes.post("/updateProductStatus", staffProtect, isAdmin, updateProductStatus);
+
+adminRoutes.post("/createPage", staffProtect, isAdmin,
+    upload.array("images", 5),
+    createPage);
+adminRoutes.post("/updatePage", staffProtect, isAdmin,
+    upload.array("images", 5),
+    updatePage);
+adminRoutes.get("/getAllActivePages", staffProtect, isAdmin, getAllActivePages);
+adminRoutes.post("/deletePage", staffProtect, isAdmin, deletePage);
+adminRoutes.post("/getPageBySlug", staffProtect, isAdmin, getPageBySlug);
 
 
 
