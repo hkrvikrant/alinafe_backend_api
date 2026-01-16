@@ -12,7 +12,7 @@ const generateToken = (id) => {
 
 const registerUser = async (req, res) => {
     try {
-        const { fullName, email, password } = req.body;
+        const { fullName, email, password, acceptTerms } = req.body;
 
         const userExists = await User.findOne({ email });
         if (userExists)
@@ -27,12 +27,13 @@ const registerUser = async (req, res) => {
             fullName,
             email,
             password: hashedPassword,
+            acceptTerms,
         });
 
         res.status(201).json({
             success: true,
             token: generateToken(user._id),
-            data: user
+            user: user
         });
     } catch (error) {
         res.status(500).json({
@@ -166,7 +167,7 @@ const loginStaff = async (req, res) => {
                 message: "Invalid email or password"
             });
 
-        res.json({
+        res.status(200).json({
             success: true,
             token: generateToken(user._id),
             user: {
