@@ -49,6 +49,11 @@ const userSchema = new mongoose.Schema({
     default: false
   },
 
+  acceptTerms: {
+    type: Boolean,
+    default: false
+  },
+
   warningCount: {
     type: Number,
     default: 0
