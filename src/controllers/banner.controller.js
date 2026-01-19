@@ -1,3 +1,6 @@
+const fs = require("fs");
+const path = require("path");
+
 const Banner = require("../models/banner.model");
 
 // CREATE BANNER (ADMIN)
@@ -103,7 +106,7 @@ const getAllBanners = async (req, res) => {
 // UPDATE BANNER (ADMIN)
 const updateBanner = async (req, res) => {
     try {
-        const { id, title, link, sortOrder, } = req.body;
+        const { id } = req.body;
 
         const banner = await Banner.findById(id);
         if (!banner) {
@@ -114,6 +117,20 @@ const updateBanner = async (req, res) => {
         }
 
         if (req.file) {
+            if (banner.image) {
+
+                const oldImagePath = path.join(
+                    __dirname,
+                    "../..",
+                    banner.image
+                );
+
+                // Delete file only if exists
+                if (fs.existsSync(oldImagePath)) {
+                    fs.unlinkSync(oldImagePath);
+                }
+            }
+
             banner.image = `/uploads/images/${req.file.filename}`;
         }
 
