@@ -1,0 +1,172 @@
+const Banner = require("../models/banner.model");
+
+// CREATE BANNER (ADMIN)
+const createBanner = async (req, res) => {
+    try {
+        const {
+            title,
+            link,
+            sortOrder,
+            // startDate,
+            // endDate,
+        } = req.body;
+
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "Banner image is required"
+            });
+        }
+
+        const image = req.file
+            ? `/uploads/images/${req.file.filename}`
+            : null;
+
+        const banner = await Banner.create({
+            title,
+            link,
+            sortOrder,
+            // startDate,
+            // endDate,
+            image,
+            createdBy: req.user._id
+        });
+
+        res.status(201).json({
+            success: true,
+            message: "Banner created successfully",
+            data: banner
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+// GET ACTIVE BANNERS (PUBLIC)
+const getActiveBanners = async (req, res) => {
+    try {
+        // const now = new Date();
+
+        const banners = await Banner.find({
+            isActive: true,
+            // $or: [
+            //     { startDate: { $lte: now }, endDate: { $gte: now } },
+            //     { startDate: null, endDate: null }
+            // ]
+        })
+            .sort({ sortOrder: 1 });
+
+        res.status(200).json({
+            success: true,
+            data: banners
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+// GET All BANNERS (ADMIN)
+const getAllBanners = async (req, res) => {
+    try {
+        // const now = new Date();
+
+        const banners = await Banner.find({
+            // isActive: true,
+            // $or: [
+            //     { startDate: { $lte: now }, endDate: { $gte: now } },
+            //     { startDate: null, endDate: null }
+            // ]
+        })
+            .sort({ sortOrder: 1 });
+
+        res.status(200).json({
+            success: true,
+            data: banners
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+// UPDATE BANNER (ADMIN)
+const updateBanner = async (req, res) => {
+    try {
+        const { id, title, link, sortOrder, } = req.body;
+
+        const banner = await Banner.findById(id);
+        if (!banner) {
+            return res.status(404).json({
+                success: false,
+                message: "Banner not found"
+            });
+        }
+
+        if (req.file) {
+            banner.image = `/uploads/images/${req.file.filename}`;
+        }
+
+        Object.assign(banner, req.body);
+        await banner.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Banner updated successfully",
+            data: banner
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+// DELETE BANNER (SOFT)
+const deleteBanner = async (req, res) => {
+    try {
+        const banner = await Banner.findByIdAndUpdate(
+            req.body.id,
+            { isActive: false },
+            { new: true }
+        );
+
+        if (!banner) {
+            return res.status(404).json({
+                success: false,
+                message: "Banner not found"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Banner deleted successfully"
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+module.exports = {
+    createBanner,
+    getActiveBanners,
+    getAllBanners,
+    updateBanner,
+    deleteBanner,
+};
