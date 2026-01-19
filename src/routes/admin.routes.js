@@ -25,6 +25,7 @@ const {
 } = require("../controllers/category.controller");
 const { updateProductStatus, getAllProductsForAdmin } = require("../controllers/products.controller");
 const { createPage, updatePage, deletePage, getAllActivePages, getPageBySlug } = require("../controllers/page.controller");
+const { createBanner, getActiveBanners, getAllBanners, updateBanner, deleteBanner } = require("../controllers/banner.controller");
 
 
 const adminRoutes = express.Router();
@@ -64,6 +65,16 @@ adminRoutes.post("/updatePage", staffProtect, isAdmin,
 adminRoutes.get("/getAllActivePages", staffProtect, isAdmin, getAllActivePages);
 adminRoutes.post("/deletePage", staffProtect, isAdmin, deletePage);
 adminRoutes.post("/getPageBySlug", staffProtect, isAdmin, getPageBySlug);
+
+adminRoutes.post("/createBanner", staffProtect, isAdmin,
+    upload.single("image"),
+    createBanner);
+adminRoutes.get("/getActiveBanners", staffProtect, isAdmin, getActiveBanners);
+adminRoutes.get("/getAllBanners", staffProtect, isAdmin, getAllBanners);
+adminRoutes.post("/updateBanner", staffProtect, isAdmin,
+    upload.single("image"),
+    updateBanner);
+adminRoutes.post("/deleteBanner", staffProtect, isAdmin, deleteBanner);
 
 
 
