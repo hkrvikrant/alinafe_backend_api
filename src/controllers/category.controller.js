@@ -238,34 +238,31 @@ const formatedCategories = async (req, res) => {
             {
                 $lookup: {
                     from: "categories",
-                    localField: "_id",
-                    foreignField: "parentId",
+                    let: { parentId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { $eq: ["$parentId", "$$parentId"] },
+                                isActive: true
+                            }
+                        },
+                        {
+                            $lookup: {
+                                from: "categories",
+                                let: { childId: "$_id" },
+                                pipeline: [
+                                    {
+                                        $match: {
+                                            $expr: { $eq: ["$parentId", "$$childId"] },
+                                            isActive: true
+                                        }
+                                    }
+                                ],
+                                as: "data"
+                            }
+                        }
+                    ],
                     as: "data"
-                }
-            },
-            {
-                $unwind: {
-                    path: "$data",
-                    preserveNullAndEmptyArrays: true
-                }
-            },
-            {
-                $lookup: {
-                    from: "categories",
-                    localField: "data._id",
-                    foreignField: "parentId",
-                    as: "data.data"
-                }
-            },
-            {
-                $group: {
-                    _id: "$_id",
-                    name: { $first: "$name" },
-                    slug: { $first: "$slug" },
-                    parentId: { $first: "$parentId" },
-                    image: { $first: "$image" },
-                    isActive: { $first: "$isActive" },
-                    data: { $push: "$data" }
                 }
             }
         ]);
