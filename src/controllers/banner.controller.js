@@ -134,12 +134,13 @@ const updateBanner = async (req, res) => {
     }
 };
 
-// DELETE BANNER (SOFT)
-const deleteBanner = async (req, res) => {
+// UPDATE BANNER STATUS
+const updateBannerStatus = async (req, res) => {
     try {
+        const { id, isActive } = req.body
         const banner = await Banner.findByIdAndUpdate(
-            req.body.id,
-            { isActive: false },
+            id,
+            { isActive: isActive },
             { new: true }
         );
 
@@ -152,7 +153,7 @@ const deleteBanner = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            message: "Banner deleted successfully"
+            message: "Banner status update successfully"
         });
 
     } catch (error) {
@@ -168,5 +169,5 @@ module.exports = {
     getActiveBanners,
     getAllBanners,
     updateBanner,
-    deleteBanner,
+    updateBannerStatus,
 };
