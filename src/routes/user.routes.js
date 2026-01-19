@@ -7,6 +7,7 @@ const {
 
 const { protect } = require("../middlewares/auth.middleware.js");
 const { getActiveBanners } = require("../controllers/banner.controller.js");
+const { formatedCategories } = require("../controllers/category.controller.js");
 
 
 const userRoutes = express.Router();
@@ -17,6 +18,7 @@ userRoutes.put("/", protect, updateMyProfile);
 userRoutes.delete("/", protect, deleteMyAccount);
 
 userRoutes.get("/getActiveBanners", getActiveBanners);
+userRoutes.get("/getCategories", formatedCategories);
 
 
 
