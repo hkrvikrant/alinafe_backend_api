@@ -69,7 +69,7 @@ const staffSchema = new mongoose.Schema({
 
     commissionPercent: {
         type: Number,
-        default: 3
+        default: 0
     },
 
     lastLoginAt: Date
