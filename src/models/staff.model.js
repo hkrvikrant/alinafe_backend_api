@@ -36,6 +36,12 @@ const staffSchema = new mongoose.Schema({
         required: true
     },
 
+    gstin: {
+        type: String,
+        unique: true,
+        required: true
+    },
+
     status: {
         type: String,
         enum: ["pending", "approved", "rejected", "blocked"],
