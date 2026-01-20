@@ -3,6 +3,8 @@ const jwt = require("jsonwebtoken")
 
 const User = require("../models/user.model");
 const Staff = require("../models/staff.model");
+const sendEmail = require("../utils/sendEmail");
+const vendorWelcomeEmail = require("../utils/emails/vendorWelcome");
 
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -88,7 +90,7 @@ const registerStaff = async (req, res) => {
             role,
             status,
             shopName,
-            commissionPercent,
+            gstin,
             accountHolderName,
             accountNumber,
             ifscCode,
@@ -112,7 +114,7 @@ const registerStaff = async (req, res) => {
             role,
             status,
             shopName,
-            commissionPercent,
+            gstin,
             bankDetails: {
                 accountHolderName,
                 accountNumber,
@@ -121,9 +123,16 @@ const registerStaff = async (req, res) => {
             }
         });
 
+        // ✅ Send welcome email
+        await sendEmail({
+            to: user.email,
+            subject: "Your Vendor Account Has Been Created",
+            html: vendorWelcomeEmail(user.fullName)
+        });
+
         res.status(201).json({
             success: true,
-            token: generateToken(user._id),
+            // token: generateToken(user._id),
             user: {
                 id: user._id,
                 fullName: user.fullName,
@@ -132,7 +141,7 @@ const registerStaff = async (req, res) => {
                 role: user.role,
                 status: user.status,
                 shopName: user.shopName,
-                commissionPercent: user.commissionPercent,
+                gstin: user.gstin,
                 bankDetails: {
                     accountHolderName: user.bankDetails.accountHolderName,
                     accountNumber: user.bankDetails.accountNumber,
@@ -178,6 +187,7 @@ const loginStaff = async (req, res) => {
                 role: user.role,
                 status: user.status,
                 shopName: user.shopName,
+                gstin: user.gstin,
                 commissionPercent: user.commissionPercent,
                 bankDetails: {
                     accountHolderName: user.bankDetails.accountHolderName,
