@@ -12,7 +12,8 @@ const {
   getProductsByCategory,
   // getFeaturedProducts,
   getAllProducts,
-  getProductsGroupedByParentCategory
+  getProductsGroupedByParentCategory,
+  getProductsByCategorySlug
 } = require("../controllers/products.controller.js");
 
 
@@ -28,7 +29,8 @@ userRoutes.get("/getCategories", formatedCategories);
 
 userRoutes.get("/getProducts", getAllProducts);
 userRoutes.get("/parentCategoryProducts", getProductsGroupedByParentCategory);
-// userRoutes.get("/getProductsByCategory", getProductsByCategory);
+userRoutes.post("/getProductsByCategory", getProductsByCategory);
+userRoutes.post("/getProductsByCategorySlug", getProductsByCategorySlug);
 // userRoutes.get("/getFeaturedProducts", getFeaturedProducts);
 
 

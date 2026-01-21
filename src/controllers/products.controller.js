@@ -565,15 +565,62 @@ const getProductsGroupedByParentCategory = async (req, res) => {
 const getProductsByCategory = async (req, res) => {
     try {
         const products = await Product.find({
-            category: req.body.categoryId,
+            categories: req.body.id,
             isActive: true,
             status: "approved"
         })
-            .populate("vendor", "name")
+            .populate("categories", "name slug")
+            .populate("vendorId", "fullName")
             .sort({ createdAt: -1 });
 
         res.status(200).json({
             success: true,
+            data: products
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+// GET PRODUCT BY CATEGORY SLUG (USER) 
+const getProductsByCategorySlug = async (req, res) => {
+    try {
+        const { slug } = req.body;
+
+        const category = await Category.findOne({
+            slug,
+            isActive: true
+        });
+
+        if (!category) {
+            return res.status(404).json({
+                success: false,
+                message: "Category not found"
+            });
+        }
+
+        // 2️⃣ Find products using category _id
+        const products = await Product.find({
+            categories: category._id,
+            isActive: true,
+            status: "approved"
+        })
+            .populate("categories", "name slug")
+            .populate("vendorId", "fullName")
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            category: {
+                _id: category._id,
+                name: category.name,
+                slug: category.slug
+            },
+            count: products.length,
             data: products
         });
 
@@ -678,5 +725,6 @@ module.exports = {
 
     getProductsByCategory,
     getProductsGroupedByParentCategory,
+    getProductsByCategorySlug,
     // getFeaturedProducts,
 };
