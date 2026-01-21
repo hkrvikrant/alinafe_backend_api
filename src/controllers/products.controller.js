@@ -1,3 +1,4 @@
+const Category = require("../models/category.model");
 const Product = require("../models/product.model");
 
 // CREATE PRODUCT (VENDOR)
@@ -8,7 +9,7 @@ const createProduct = async (req, res) => {
             slug,
             description,
             price,
-            discountedPrice,
+            sellingPrice,
             stock,
             sku,
             categories,
@@ -38,6 +39,21 @@ const createProduct = async (req, res) => {
             });
         }
 
+        // 🔹 Convert to numbers
+        price = Number(price);
+        sellingPrice = sellingPrice ? Number(sellingPrice) : null;
+
+        // 🔹 Discount calculation
+        let discountAmount = 0;
+        let discountPercentage = 0;
+
+        if (sellingPrice && sellingPrice < price) {
+            discountAmount = price - sellingPrice;
+            discountPercentage = Math.round(
+                (discountAmount / price) * 100
+            );
+        }
+
         const images = req.files
             ? req.files.map(file => `/uploads/images/${file.filename}`)
             : [];
@@ -49,7 +65,9 @@ const createProduct = async (req, res) => {
             slug,
             description,
             price,
-            discountedPrice,
+            sellingPrice,
+            discountAmount,
+            discountPercentage,
             stock,
             sku,
             images,
@@ -83,8 +101,10 @@ const getAllProducts = async (req, res) => {
             status: "approved",
             isActive: true
         })
-            .populate("categoryId", "name")
-            .populate("vendorId", "name");
+            .sort({ createdAt: -1 })
+            .limit(10)
+            .populate("categories", "name slug")
+            .populate("vendorId", "name")
 
         res.status(200).json({
             success: true,
@@ -99,11 +119,11 @@ const getAllProducts = async (req, res) => {
     }
 };
 
-// GET SINGLE PRODUCT
+// GET SINGLE PRODUCT (USER)
 const getProductById = async (req, res) => {
     try {
         const product = await Product.findById(req.body.id)
-            .populate("categoryId", "name")
+            .populate("categories", "name")
             .populate("vendorId", "name");
 
         if (!product) {
@@ -129,24 +149,13 @@ const getProductById = async (req, res) => {
 // UPDATE PRODUCT (VENDOR)
 const updateProduct = async (req, res) => {
     try {
-
-        const product = await Product.findOne({
-            _id: req.body.id,
-            vendorId: req.user._id
-        });
-        if (!product) {
-            return res.status(404).json({
-                success: false,
-                message: "Product not found"
-            });
-        }
-
         const {
+            id,
             name,
             slug,
             description,
             price,
-            discountedPrice,
+            sellingPrice,
             stock,
             sku,
             categories,
@@ -157,6 +166,18 @@ const updateProduct = async (req, res) => {
             warranty,
             inTheBox,
         } = req.body;
+
+        const product = await Product.findOne({
+            _id: id,
+            vendorId: req.user._id,
+        });
+
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                message: "Product not found",
+            });
+        }
 
         let isUpdated = false;
 
@@ -172,11 +193,6 @@ const updateProduct = async (req, res) => {
 
         if (description) {
             product.description = description;
-            isUpdated = true;
-        }
-
-        if (price) {
-            product.price = price;
             isUpdated = true;
         }
 
@@ -210,22 +226,40 @@ const updateProduct = async (req, res) => {
             isUpdated = true;
         }
 
-        if (discountedPrice) {
-            product.discountedPrice = discountedPrice;
-            isUpdated = true;
-        }
-
-        if (stock) {
-            product.stock = stock;
-            isUpdated = true;
-        }
-
         if (sku) {
             product.sku = sku;
             isUpdated = true;
         }
 
-        // ✅ Categories handling (FormData safe)
+
+        // 🔹 Numbers
+        if (price !== undefined) {
+            product.price = Number(price);
+            isUpdated = true;
+        }
+
+        if (sellingPrice !== undefined) {
+            product.sellingPrice = Number(sellingPrice);
+            isUpdated = true;
+        }
+
+        if (stock !== undefined) {
+            product.stock = Number(stock);
+            isUpdated = true;
+        }
+
+        if (
+            product.sellingPrice &&
+            product.price &&
+            product.sellingPrice > product.price
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Selling price cannot be greater than MRP",
+            });
+        }
+
+        // 🔹 Categories (FormData safe)
         if (categories) {
             let parsedCategories = categories;
 
@@ -241,7 +275,7 @@ const updateProduct = async (req, res) => {
             isUpdated = true;
         }
 
-        // ✅ Images handling
+        // 🔹 Images
         if (req.files && req.files.length > 0) {
             const newImages = req.files.map(
                 file => `/uploads/images/${file.filename}`
@@ -251,7 +285,22 @@ const updateProduct = async (req, res) => {
             isUpdated = true;
         }
 
-        // 🔥 IMPORTANT: Reset status for re-approval
+        // 🔥 Auto discount calculation
+        if (
+            product.price &&
+            product.sellingPrice &&
+            product.sellingPrice < product.price
+        ) {
+            product.discountAmount = product.price - product.sellingPrice;
+            product.discountPercentage = Math.round(
+                (product.discountAmount / product.price) * 100
+            );
+        } else {
+            product.discountAmount = 0;
+            product.discountPercentage = 0;
+        }
+
+        // 🔁 Send again for approval if changed
         if (isUpdated) {
             product.status = "pending";
         }
@@ -261,13 +310,13 @@ const updateProduct = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Product updated successfully and sent for re-approval",
-            data: product
+            data: product,
         });
 
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: error.message
+            message: error.message,
         });
     }
 };
@@ -423,6 +472,168 @@ const getAllProductsForAdmin = async (req, res) => {
     }
 };
 
+const getProductsGroupedByCategory = async (req, res) => {
+    try {
+        const categories = await Category.aggregate([
+            {
+                $match: {
+                    isActive: true,
+                    $or: [
+                        { parentId: null },
+                        { parentId: { $exists: false } }
+                    ]
+                }
+            },
+            {
+                $lookup: {
+                    from: "products",
+                    let: { categoryId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $in: ["$$categoryId", "$categories"] },
+                                        { $eq: ["$isActive", true] },
+                                        { $eq: ["$status", "approved"] }
+                                    ]
+                                }
+                            }
+                        },
+                        { $sort: { createdAt: -1 } },
+                        { $limit: 10 }
+                    ],
+                    as: "products"
+                }
+            },
+            {
+                $project: {
+                    name: 1,
+                    slug: 1,
+                    image: 1,
+                    products: { $ifNull: ["$products", []] }
+                }
+            }
+        ]);
+
+        res.json({
+            success: true,
+            count: categories.length,
+            data: categories
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+// GET PRODUCT BY CATEGORY (USER)
+const getProductsByCategory = async (req, res) => {
+    try {
+        const products = await Product.find({
+            category: req.body.categoryId,
+            isActive: true,
+            status: "approved"
+        })
+            .populate("vendor", "name")
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            data: products
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+// FEATURE / LATEST PRODUCTS (USER)
+// const getFeaturedProducts = async (req, res) => {
+//     try {
+//         const products = await Product.find({
+//             isActive: true,
+//             status: "approved",
+//         })
+//             .populate("category", "name")
+//             .limit(10)
+//             .sort({ createdAt: -1 })
+
+//         res.status(200).json({
+//             success: true,
+//             data: products
+//         });
+
+//     } catch (error) {
+//         res.status(500).json({
+//             success: false,
+//             message: error.message
+//         });
+//     }
+// };
+
+const getProducts = async (req, res) => {
+    try {
+        const {
+            category,
+            vendor,
+            search,
+            minPrice,
+            maxPrice,
+            page = 1,
+            limit = 10
+        } = req.query;
+
+        let filter = {
+            isActive: true,
+            status: "approved" // only approved products
+        };
+
+        if (category) filter.category = category;
+        if (vendor) filter.vendor = vendor;
+
+        if (minPrice || maxPrice) {
+            filter.price = {};
+            if (minPrice) filter.price.$gte = Number(minPrice);
+            if (maxPrice) filter.price.$lte = Number(maxPrice);
+        }
+
+        if (search) {
+            filter.name = { $regex: search, $options: "i" };
+        }
+
+        const products = await Product.find(filter)
+            .populate("category", "name slug")
+            .populate("vendor", "name")
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * limit)
+            .limit(Number(limit));
+
+        const total = await Product.countDocuments(filter);
+
+        res.status(200).json({
+            success: true,
+            total,
+            page: Number(page),
+            pages: Math.ceil(total / limit),
+            data: products
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+
 module.exports = {
     createProduct,
     getAllProducts,
@@ -433,4 +644,8 @@ module.exports = {
     getVendorProducts,
 
     getAllProductsForAdmin,
+
+    getProductsByCategory,
+    getProductsGroupedByCategory,
+    // getFeaturedProducts,
 };
