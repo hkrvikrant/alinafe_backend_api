@@ -12,7 +12,7 @@ const {
   getProductsByCategory,
   // getFeaturedProducts,
   getAllProducts,
-  getProductsGroupedByCategory
+  getProductsGroupedByParentCategory
 } = require("../controllers/products.controller.js");
 
 
@@ -27,7 +27,7 @@ userRoutes.get("/getActiveBanners", getActiveBanners);
 userRoutes.get("/getCategories", formatedCategories);
 
 userRoutes.get("/getProducts", getAllProducts);
-userRoutes.get("/productsByCategory", getProductsGroupedByCategory);
+userRoutes.get("/parentCategoryProducts", getProductsGroupedByParentCategory);
 // userRoutes.get("/getProductsByCategory", getProductsByCategory);
 // userRoutes.get("/getFeaturedProducts", getFeaturedProducts);
 
