@@ -11,7 +11,13 @@ const createProduct = async (req, res) => {
             discountedPrice,
             stock,
             sku,
-            categories
+            categories,
+            short_description,
+            brand,
+            model,
+            connectivity,
+            warranty,
+            inTheBox,
         } = req.body;
 
         if (typeof categories === "string") {
@@ -47,6 +53,12 @@ const createProduct = async (req, res) => {
             stock,
             sku,
             images,
+            short_description,
+            brand,
+            model,
+            connectivity,
+            warranty,
+            inTheBox,
             status: "pending"
         });
 
@@ -138,6 +150,12 @@ const updateProduct = async (req, res) => {
             stock,
             sku,
             categories,
+            short_description,
+            brand,
+            model,
+            connectivity,
+            warranty,
+            inTheBox,
         } = req.body;
 
         let isUpdated = false;
@@ -146,6 +164,7 @@ const updateProduct = async (req, res) => {
             product.name = name;
             isUpdated = true;
         }
+
         if (slug) {
             product.slug = slug;
             isUpdated = true;
@@ -158,6 +177,36 @@ const updateProduct = async (req, res) => {
 
         if (price) {
             product.price = price;
+            isUpdated = true;
+        }
+
+        if (short_description) {
+            product.short_description = short_description;
+            isUpdated = true;
+        }
+
+        if (brand) {
+            product.brand = brand;
+            isUpdated = true;
+        }
+
+        if (model) {
+            product.model = model;
+            isUpdated = true;
+        }
+
+        if (connectivity) {
+            product.connectivity = connectivity;
+            isUpdated = true;
+        }
+
+        if (warranty) {
+            product.warranty = warranty;
+            isUpdated = true;
+        }
+
+        if (inTheBox) {
+            product.inTheBox = inTheBox;
             isUpdated = true;
         }
 

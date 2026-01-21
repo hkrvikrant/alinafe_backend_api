@@ -32,6 +32,10 @@ const productSchema = new mongoose.Schema({
         required: true
     },
 
+    short_description: {
+        type: String,
+    },
+
     price: {
         type: Number,
         required: true
@@ -50,6 +54,26 @@ const productSchema = new mongoose.Schema({
         type: String,
         unique: true,
         required: true
+    },
+
+    brand: {
+        type: String,
+    },
+
+    model: {
+        type: String,
+    },
+
+    connectivity: {
+        type: String,
+    },
+
+    warranty: {
+        type: String,
+    },
+
+    inTheBox: {
+        type: String,
     },
 
     images: [String],
