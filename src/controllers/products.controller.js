@@ -501,11 +501,42 @@ const getProductsGroupedByCategory = async (req, res) => {
                             }
                         },
                         { $sort: { createdAt: -1 } },
-                        { $limit: 10 }
+
+                        // Limit products per category
+                        { $limit: 10 },
+
+                        // 🔥 Convert category IDs → objects
+                        {
+                            $lookup: {
+                                from: "categories",
+                                localField: "categories",
+                                foreignField: "_id",
+                                as: "categories"
+                            }
+                        },
+
+                        // 🔥 Keep ALL product fields, only transform categories
+                        {
+                            $addFields: {
+                                categories: {
+                                    $map: {
+                                        input: "$categories",
+                                        as: "cat",
+                                        in: {
+                                            _id: "$$cat._id",
+                                            name: "$$cat.name",
+                                            slug: "$$cat.slug"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     ],
                     as: "products"
                 }
             },
+
+            // 3️⃣ Final category response
             {
                 $project: {
                     name: 1,
@@ -516,7 +547,7 @@ const getProductsGroupedByCategory = async (req, res) => {
             }
         ]);
 
-        res.json({
+        res.status(200).json({
             success: true,
             count: categories.length,
             data: categories
