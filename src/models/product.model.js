@@ -41,8 +41,16 @@ const productSchema = new mongoose.Schema({
         required: true
     },
 
-    discountedPrice: {
+    sellingPrice: {
         type: Number
+    },
+    discountAmount: {
+        type: Number,
+        default: 0
+    },
+    discountPercentage: {
+        type: Number,
+        default: 0
     },
 
     stock: {
@@ -82,6 +90,16 @@ const productSchema = new mongoose.Schema({
         type: String,
         enum: ["pending", "approved", "rejected"],
         default: "pending"
+    },
+
+    rating: {
+        type: Number,
+        default: 0
+    },
+
+    reviews: {
+        type: Number,
+        default: 0
     },
 
     isActive: {
