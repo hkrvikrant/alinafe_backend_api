@@ -615,11 +615,6 @@ const getProductsByCategorySlug = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            category: {
-                _id: category._id,
-                name: category.name,
-                slug: category.slug
-            },
             count: products.length,
             data: products
         });
