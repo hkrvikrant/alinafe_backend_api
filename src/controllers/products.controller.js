@@ -562,7 +562,7 @@ const getProductsGroupedByParentCategory = async (req, res) => {
 };
 
 // GET PRODUCT BY CATEGORY (USER)
-const getProductsByCategory = async (req, res) => {
+const getProductsByCategoryId = async (req, res) => {
     try {
         const products = await Product.find({
             categories: req.body.id,
@@ -723,7 +723,7 @@ module.exports = {
 
     getAllProductsForAdmin,
 
-    getProductsByCategory,
+    getProductsByCategoryId,
     getProductsGroupedByParentCategory,
     getProductsByCategorySlug,
     // getFeaturedProducts,

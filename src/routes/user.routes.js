@@ -9,7 +9,7 @@ const { protect } = require("../middlewares/auth.middleware.js");
 const { getActiveBanners } = require("../controllers/banner.controller.js");
 const { formatedCategories } = require("../controllers/category.controller.js");
 const {
-  getProductsByCategory,
+  getProductsByCategoryId,
   // getFeaturedProducts,
   getAllProducts,
   getProductsGroupedByParentCategory,
@@ -29,7 +29,7 @@ userRoutes.get("/getCategories", formatedCategories);
 
 userRoutes.get("/getProducts", getAllProducts);
 userRoutes.get("/parentCategoryProducts", getProductsGroupedByParentCategory);
-userRoutes.post("/getProductsByCategory", getProductsByCategory);
+userRoutes.post("/getProductsByCategoryId", getProductsByCategoryId);
 userRoutes.post("/getProductsByCategorySlug", getProductsByCategorySlug);
 // userRoutes.get("/getFeaturedProducts", getFeaturedProducts);
 
