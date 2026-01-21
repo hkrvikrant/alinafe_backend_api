@@ -472,7 +472,7 @@ const getAllProductsForAdmin = async (req, res) => {
     }
 };
 
-const getProductsGroupedByCategory = async (req, res) => {
+const getProductsGroupedByParentCategory = async (req, res) => {
     try {
         const categories = await Category.aggregate([
             {
@@ -677,6 +677,6 @@ module.exports = {
     getAllProductsForAdmin,
 
     getProductsByCategory,
-    getProductsGroupedByCategory,
+    getProductsGroupedByParentCategory,
     // getFeaturedProducts,
 };
