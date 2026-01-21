@@ -315,7 +315,10 @@ const updateProductStatus = async (req, res) => {
 
         const product = await Product.findByIdAndUpdate(
             id,
-            { status },
+            {
+                status,
+                isActive: status === 'approved' ? true : false
+            },
             { new: true }
         );
 
@@ -345,7 +348,7 @@ const getVendorProducts = async (req, res) => {
     try {
         const products = await Product.find({
             vendorId: req.user._id,
-            isActive: true
+            // isActive: true
         })
             .populate("categories", "name");
 
@@ -373,7 +376,7 @@ const getAllProductsForAdmin = async (req, res) => {
         } = req.query;
 
         const query = {
-            isActive: true
+            // isActive: true
         };
 
         // 🔹 Filter by status
