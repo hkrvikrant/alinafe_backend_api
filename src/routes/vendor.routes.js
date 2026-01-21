@@ -10,7 +10,7 @@ const {
     getCategoriesByParentID,
     formatedCategories,
 } = require("../controllers/category.controller");
-const { createProduct, updateProduct, getAllProducts, getProductById, deleteProduct, getVendorProducts } = require("../controllers/products.controller");
+const { createProduct, updateProduct, getProductById, deleteProduct, getVendorProducts } = require("../controllers/products.controller");
 
 
 const vendorRoutes = express.Router();
@@ -29,8 +29,6 @@ vendorRoutes.post("/updateProduct", staffProtect, isVendor,
     upload.array("image", 5),
     updateProduct);
 vendorRoutes.post("/deleteProduct", staffProtect, isVendor, deleteProduct);
-
-vendorRoutes.get("/user/getAllProducts", getAllProducts);
 
 
 module.exports = vendorRoutes;
