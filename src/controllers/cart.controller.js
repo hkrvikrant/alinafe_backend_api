@@ -97,8 +97,6 @@ const addToCart = async (req, res) => {
 const updateCartItem = async (req, res) => {
     try {
         const { guestId, productId, variantId, quantity } = req.body;
-        console.log("req.user", req.user)
-        console.log("req.body", req.body)
         const userId = req.user?._id || null;
 
         let cart = await Cart.findOne({
@@ -203,50 +201,48 @@ const clearCart = async (req, res) => {
 };
 
 /* MERGE GUEST CART AFTER LOGIN */
-const mergeCart = async (req, res) => {
+const mergeGuestCartIntoUserCart = async (req, res) => {
     try {
         const { guestId } = req.body;
-        console.log("req.user", req.user)
         const userId = req.user?._id;
 
         const guestCart = await Cart.findOne({ guestId });
+        if (!guestCart || guestCart.items.length === 0) return;
+
         let userCart = await Cart.findOne({ userId });
 
-        if (!guestCart) return res.status(200).json({ success: true });
-
+        // If user cart does not exist, just assign guest cart to user
         if (!userCart) {
             guestCart.userId = userId;
             guestCart.guestId = null;
             guestCart.isGuest = false;
             await guestCart.save();
-            return res.status(200).json({
-                success: true,
-                data: guestCart
-            });
+            return;
         }
 
-        guestCart.items.forEach(gItem => {
-            const uItem = userCart.items.find(
+        // Merge items properly
+        for (const guestItem of guestCart.items) {
+            const existingItem = userCart.items.find(
                 item =>
-                    item.productId.toString() === gItem.productId.toString() &&
-                    item.variantId?.toString() === gItem.variantId?.toString()
+                    item.productId.toString() === guestItem.productId.toString() &&
+                    item.variantId?.toString() === guestItem.variantId?.toString()
             );
 
-            if (uItem) {
-                uItem.quantity += gItem.quantity;
+            if (existingItem) {
+                // Increase quantity
+                existingItem.quantity += guestItem.quantity;
             } else {
-                userCart.items.push(gItem);
+                // Push new item
+                userCart.items.push(guestItem);
             }
-        });
+        }
 
+        // Recalculate totals
         calculateTotals(userCart);
         await userCart.save();
-        await guestCart.deleteOne();
 
-        res.status(200).json({
-            success: true,
-            data: userCart
-        });
+        // Delete guest cart
+        await Cart.deleteOne({ guestId });
     } catch (err) {
         res.status(500).json({
             success: false,
@@ -262,5 +258,5 @@ module.exports = {
     updateCartItem,
     removeCartItem,
     clearCart,
-    mergeCart,
+    mergeGuestCartIntoUserCart,
 };
