@@ -5,7 +5,7 @@ const {
   deleteMyAccount,
 } = require("../controllers/user.controller");
 
-const { protect } = require("../middlewares/auth.middleware.js");
+const { protect, optionalAuth } = require("../middlewares/auth.middleware.js");
 const { getActiveBanners } = require("../controllers/banner.controller.js");
 const { formatedCategories } = require("../controllers/category.controller.js");
 const {
@@ -21,7 +21,7 @@ const {
   updateCartItem,
   removeCartItem,
   clearCart,
-  mergeCart,
+  mergeGuestCartIntoUserCart,
 } = require("../controllers/cart.controller.js");
 
 
@@ -41,13 +41,12 @@ userRoutes.post("/getProductsByCategoryId", getProductsByCategoryId);
 userRoutes.post("/getProductsByCategorySlug", getProductsByCategorySlug);
 // userRoutes.get("/getFeaturedProducts", getFeaturedProducts);
 
-userRoutes.post("/cart", getCartList);
-userRoutes.post("/cart/add", addToCart);
-userRoutes.post("/cart/delete", clearCart);
-userRoutes.put("/cart/update", updateCartItem);
-userRoutes.post("/cart/item", removeCartItem);
-
-userRoutes.post("/cart/merge", mergeCart);
+userRoutes.post("/cart", optionalAuth, getCartList);
+userRoutes.post("/cart/add", optionalAuth, addToCart);
+userRoutes.post("/cart/delete", optionalAuth, clearCart);
+userRoutes.put("/cart/update", optionalAuth, updateCartItem);
+userRoutes.post("/cart/item", optionalAuth, removeCartItem);
+userRoutes.post("/cart/merge", optionalAuth, mergeGuestCartIntoUserCart);
 
 
 module.exports = userRoutes;
